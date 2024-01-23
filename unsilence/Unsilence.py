@@ -42,7 +42,7 @@ class Unsilence:
         """
         Detects silence of the file (Options can be specified in kwargs)
 
-        :param `**kwargs`: Remaining keyword arguments are passed to :func:`~unsilence.lib.detect_silence.DetectSilence.detect_silence`
+        :param `\**kwargs`: Remaining keyword arguments are passed to :func:`~unsilence.lib.detect_silence.DetectSilence.detect_silence`
 
         :return: A generated Intervals object
         :rtype: ~unsilence.lib.intervals.Intervals.Intervals
@@ -95,7 +95,7 @@ class Unsilence:
 
         :param output_file: Where the final file should be saved at
         :type output_file: str | PathLike
-        :param `**kwargs`: Remaining keyword arguments are passed to :func:`~unsilence.lib.render_media.MediaRenderer.MediaRenderer.render`
+        :param `\**kwargs`: Remaining keyword arguments are passed to :func:`~unsilence.lib.render_media.MediaRenderer.MediaRenderer.render`
        
         :return: None
         """
