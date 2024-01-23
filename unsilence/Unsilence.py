@@ -1,5 +1,7 @@
 import atexit
 import shutil
+import sys
+from os import PathLike
 from pathlib import Path
 
 from unsilence.lib.detect_silence.DetectSilence import detect_silence
@@ -7,7 +9,6 @@ from unsilence.lib.intervals.Intervals import Intervals
 from unsilence.lib.intervals.TimeCalculations import calculate_time
 from unsilence.lib.render_media.MediaRenderer import MediaRenderer
 from unsilence.lib.tools.ffmpeg_version import is_ffmpeg_usable
-import sys
 
 
 class Unsilence:
@@ -15,16 +16,16 @@ class Unsilence:
     Unsilence Class to remove (or isolate or many other use cases) silence from audible video parts
     """
 
-    def __init__(self, input_file: Path, temp_dir: Path = Path(".tmp")):
+    def __init__(self, input_file: str | PathLike, temp_dir: str | PathLike = Path(".tmp")):
         """
         :param input_file: The file that should be processed
-        :type input_file: Path
+        :type input_file: str | PathLike
         :param temp_dir: The temp dir where temporary files can be saved
-        :type temp_dir: Path
+        :type temp_dir: str | PathLike
         """
         self.__input_file = Path(input_file)
         self.__temp_dir = Path(temp_dir)
-        self.__intervals: Intervals = None
+        self.__intervals: Intervals | None = None
 
         ffmpeg_status = is_ffmpeg_usable()
         if ffmpeg_status == "not_detected":
@@ -41,7 +42,7 @@ class Unsilence:
         """
         Detects silence of the file (Options can be specified in kwargs)
 
-        :param `\**kwargs`: Remaining keyword arguments are passed to :func:`~unsilence.lib.detect_silence.DetectSilence.detect_silence`
+        :param `**kwargs`: Remaining keyword arguments are passed to :func:`~unsilence.lib.detect_silence.DetectSilence.detect_silence`
 
         :return: A generated Intervals object
         :rtype: ~unsilence.lib.intervals.Intervals.Intervals
@@ -88,13 +89,13 @@ class Unsilence:
 
         return calculate_time(self.__intervals, audible_speed, silent_speed)
 
-    def render_media(self, output_file: Path, **kwargs):
+    def render_media(self, output_file: str | PathLike, **kwargs):
         """
         Renders the current intervals with options specified in the kwargs
 
         :param output_file: Where the final file should be saved at
-        :type output_file: Path
-        :param `\**kwargs`: Remaining keyword arguments are passed to :func:`~unsilence.lib.render_media.MediaRenderer.MediaRenderer.render`
+        :type output_file: str | PathLike
+        :param `**kwargs`: Remaining keyword arguments are passed to :func:`~unsilence.lib.render_media.MediaRenderer.MediaRenderer.render`
        
         :return: None
         """

@@ -4,6 +4,7 @@ import subprocess
 import threading
 import time
 import uuid
+from os import PathLike
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -17,14 +18,14 @@ class MediaRenderer:
     the different intervals at the end
     """
 
-    def __init__(self, temp_path: Path):
+    def __init__(self, temp_path: str | PathLike):
         """
         Initializes a new MediaRenderer Object
         :param temp_path: The temp path where all temporary files should be stored
         """
         self.__temp_path = Path(temp_path).absolute()
 
-    def render(self, input_file: Path, output_file: Path, intervals: Intervals, **kwargs):
+    def render(self, input_file: str | PathLike, output_file: str | PathLike, intervals: Intervals, **kwargs):
         """
         Renders an input_file and writes the final output to output_file
         :param input_file: The file that should be processed

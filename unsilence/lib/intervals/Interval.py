@@ -3,7 +3,7 @@ class Interval:
     Represents a section in time where the media file is either silent or audible
     """
 
-    def __init__(self, start=0, end=0, is_silent=False):
+    def __init__(self, start: float = 0.0, end: float = 0.0, is_silent: bool | None = False):
         """
         Initializes an Interval object
         :param start: Start time of the interval in seconds

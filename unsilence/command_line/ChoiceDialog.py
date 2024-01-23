@@ -1,7 +1,7 @@
 from rich.console import Console
 
 
-def choice_dialog(console: Console, message: str, default: bool = None):
+def choice_dialog(console: Console, message: str, default: bool | None = None):
     """
     A simple yes/no console dialog option
     :param console: rich.Console Instance

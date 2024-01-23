@@ -6,7 +6,7 @@ class Intervals:
     Collection of lib.Intervals.Interval
     """
 
-    def __init__(self, interval_list: list = None):
+    def __init__(self, interval_list: list | None = None):
         """
         Initializes a new Interval Collection
         :param interval_list: list of intervals, optional
