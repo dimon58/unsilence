@@ -1,22 +1,22 @@
 import setuptools
 
-with open("README.md", "r") as f:
+with open("README.md", "r", encoding="utf8") as f:
     long_description = f.read()
 
-with open('requirements.txt') as f:
+with open("requirements.txt", encoding="utf8") as f:
     requirements = f.read().splitlines()
 
 setuptools.setup(
-    name='unsilence',
-    version='1.0.9',
+    name="unsilence",
+    version="1.0.9",
     install_requires=requirements,
-    license='MIT License',
-    author='Tim-Luca Lagmöller',
-    author_email='mail@lagmoellertim.de',
-    description='Remove Silence from Media Files',
+    license="MIT License",
+    author="Tim-Luca Lagmöller",
+    author_email="mail@lagmoellertim.de",
+    description="Remove Silence from Media Files",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url='https://github.com/lagmoellertim/unsilence',
+    url="https://github.com/lagmoellertim/unsilence",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
