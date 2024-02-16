@@ -8,7 +8,7 @@ with open("requirements.txt", encoding="utf8") as f:
 
 setuptools.setup(
     name="unsilence",
-    version="1.0.9",
+    version="1.1.0",
     install_requires=requirements,
     license="MIT License",
     author="Tim-Luca Lagmöller",
