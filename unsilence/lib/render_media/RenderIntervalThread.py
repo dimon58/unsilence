@@ -121,25 +121,22 @@ class RenderIntervalThread(threading.Thread):
             interval_in_fade_duration: float,
             interval_out_fade_duration: float,
             fade_curve: str,
-    ) -> tuple[str, ...]:
+    ) -> str:
 
-        if interval_out_fade_duration == 0.0 and interval_out_fade_duration == 0.0:
-            return ()
+        res = []
 
-        fade_in = f"afade=t=in:st=0:d={interval_in_fade_duration:.4f}:curve={fade_curve}"
-        fade_out = (
-            f"afade=t=out"
-            f":st={total_duration - interval_out_fade_duration:.4f}"
-            f":d={interval_out_fade_duration:.4f}"
-            f":curve={fade_curve}"
-        )
-        if interval_in_fade_duration == 0.0:
-            return "-af", fade_out
+        if interval_in_fade_duration != 0.0:
+            res.append(f"afade=t=in:st=0:d={interval_in_fade_duration:.4f}:curve={fade_curve}")
 
-        if interval_out_fade_duration == 0.0:
-            return "-af", fade_in
+        if interval_out_fade_duration != 0.0:
+            res.append(
+                f"afade=t=out"
+                f":st={total_duration - interval_out_fade_duration:.4f}"
+                f":d={interval_out_fade_duration:.4f}"
+                f":curve={fade_curve}"
+            )
 
-        return "-af", f"{fade_in},{fade_out}"
+        return ",".join(res)
 
     def _generate_command(
             self,
@@ -165,7 +162,6 @@ class RenderIntervalThread(threading.Thread):
             "-ss", f"{interval.start}",
             "-to", f"{interval.end}",
             "-i", f"{self._input_file}",
-            *fade,
             "-vsync", "1",
             "-async", "1",
             "-safe", "0",
@@ -189,8 +185,11 @@ class RenderIntervalThread(threading.Thread):
                     f"[0:v]setpts={round(1 / current_speed, 4)}*PTS[v]",
                 ])
 
+            if fade != "":
+                fade = f"{fade},"
+
             complex_filter.extend([
-                f"[0:a]atempo={round(current_speed, 4)},volume={current_volume}[a]",
+                f"[0:a]{fade}atempo={round(current_speed, 4)},volume={current_volume}[a]",
             ])
 
             command.extend(
@@ -202,6 +201,8 @@ class RenderIntervalThread(threading.Thread):
 
             command.extend(["-map", "[a]"])
         else:
+            if fade != "":
+                command.extend(["-af", fade])
             if self._render_options.audio_only:
                 command.append("-vn")
 
