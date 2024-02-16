@@ -23,7 +23,7 @@ class MediaRenderer:
         Initializes a new MediaRenderer Object
         :param temp_path: The temp path where all temporary files should be stored
         """
-        self.__temp_path = Path(temp_path).absolute()
+        self._temp_path = Path(temp_path).absolute()
 
     def render(self, input_file: str | PathLike, output_file: str | PathLike, intervals: Intervals, **kwargs):
         """
@@ -69,7 +69,7 @@ class MediaRenderer:
             render_options.silent_speed
         )
 
-        video_temp_path = self.__temp_path / str(uuid.uuid4())
+        video_temp_path = self._temp_path / str(uuid.uuid4())
         video_temp_path.mkdir(parents=True)
 
         concat_file = video_temp_path / "concat_list.txt"
@@ -129,7 +129,7 @@ class MediaRenderer:
 
         completed_file_list = [task.interval_output_file for task in sorted(completed_tasks, key=lambda x: x.task_id)]
 
-        MediaRenderer.__concat_intervals(
+        self._concat_intervals(
             completed_file_list,
             concat_file,
             final_output,
@@ -140,7 +140,7 @@ class MediaRenderer:
         shutil.rmtree(video_temp_path)
 
     @staticmethod
-    def __concat_intervals(file_list: list, concat_file: Path, output_file: Path, update_concat_progress):
+    def _concat_intervals(file_list: list, concat_file: Path, output_file: Path, update_concat_progress):
         """
         Concatenates all interval files to create a finished file
         :param file_list: List of interval files

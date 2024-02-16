@@ -10,9 +10,9 @@ class Interval:
         :param end: End time of the interval in seconds
         :param is_silent: Whether the interval is silent or not
         """
-        self.__start = start
-        self.__end = end
-        self.__duration = self.__end - self.__start
+        self._start = start
+        self._end = end
+        self._duration = self._end - self._start
         self.is_silent = is_silent
 
     @property
@@ -21,7 +21,7 @@ class Interval:
         Get the start time
         :return: start time in seconds
         """
-        return self.__start
+        return self._start
 
     @start.setter
     def start(self, new_start):
@@ -30,8 +30,8 @@ class Interval:
         :param new_start: start time in seconds
         :return: None
         """
-        self.__start = new_start
-        self.__duration = self.__end - self.__start
+        self._start = new_start
+        self._duration = self._end - self._start
 
     @property
     def end(self):
@@ -39,7 +39,7 @@ class Interval:
         Get the end time
         :return: end time in seconds
         """
-        return self.__end
+        return self._end
 
     @end.setter
     def end(self, new_end):
@@ -48,8 +48,8 @@ class Interval:
         :param new_end: start time in seconds
         :return: None
         """
-        self.__end = new_end
-        self.__duration = self.__end - self.__start
+        self._end = new_end
+        self._duration = self._end - self._start
 
     @property
     def duration(self):
@@ -57,7 +57,7 @@ class Interval:
         Returns the duration of the interval
         :return: Duration of the interval
         """
-        return self.__duration
+        return self._duration
 
     def enlarge_audible_interval(self, stretch_time, is_start_interval=False, is_end_interval=False):
         """

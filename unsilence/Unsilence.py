@@ -23,9 +23,9 @@ class Unsilence:
         :param temp_dir: The temp dir where temporary files can be saved
         :type temp_dir: str | PathLike
         """
-        self.__input_file = Path(input_file)
-        self.__temp_dir = Path(temp_dir)
-        self.__intervals: Intervals | None = None
+        self._input_file = Path(input_file)
+        self._temp_dir = Path(temp_dir)
+        self._intervals: Intervals | None = None
 
         ffmpeg_status = is_ffmpeg_usable()
         if ffmpeg_status == "not_detected":
@@ -47,8 +47,8 @@ class Unsilence:
         :return: A generated Intervals object
         :rtype: ~unsilence.lib.intervals.Intervals.Intervals
         """
-        self.__intervals = detect_silence(self.__input_file, **kwargs)
-        return self.__intervals
+        self._intervals = detect_silence(self._input_file, **kwargs)
+        return self._intervals
 
     def set_intervals(self, intervals: Intervals):
         """
@@ -59,7 +59,7 @@ class Unsilence:
 
         :return: None
         """
-        self.__intervals = intervals
+        self._intervals = intervals
 
     def get_intervals(self):
         """
@@ -68,7 +68,7 @@ class Unsilence:
         :return: Intervals collection
         :rtype: ~unsilence.lib.intervals.Intervals.Intervals
         """
-        return self.__intervals
+        return self._intervals
 
     def estimate_time(self, audible_speed: float = 1, silent_speed: float = 6):
         """
@@ -84,10 +84,10 @@ class Unsilence:
         :return: Dictionary of time information
         :rtype: dict
         """
-        if self.__intervals is None:
+        if self._intervals is None:
             raise ValueError("Silence detection was not yet run and no intervals where given manually!")
 
-        return calculate_time(self.__intervals, audible_speed, silent_speed)
+        return calculate_time(self._intervals, audible_speed, silent_speed)
 
     def render_media(self, output_file: str | PathLike, **kwargs):
         """
@@ -99,11 +99,11 @@ class Unsilence:
        
         :return: None
         """
-        if self.__intervals is None:
+        if self._intervals is None:
             raise ValueError("Silence detection was not yet run and no intervals where given manually!")
 
-        renderer = MediaRenderer(self.__temp_dir)
-        renderer.render(self.__input_file, output_file, self.__intervals, **kwargs)
+        renderer = MediaRenderer(self._temp_dir)
+        renderer.render(self._input_file, output_file, self._intervals, **kwargs)
 
     def cleanup(self):
         """
@@ -111,5 +111,5 @@ class Unsilence:
 
         :return: None
         """
-        if self.__temp_dir.exists():
-            shutil.rmtree(self.__temp_dir)
+        if self._temp_dir.exists():
+            shutil.rmtree(self._temp_dir)

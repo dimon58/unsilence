@@ -28,10 +28,10 @@ class RenderIntervalThread(threading.Thread):
         self.thread_id = thread_id
         self.task_queue = task_queue
         self.thread_lock = thread_lock
-        self.__should_exit = False
-        self.__input_file = input_file
-        self.__on_task_completed = kwargs.get("on_task_completed", None)
-        self.__render_options = render_options
+        self._should_exit = False
+        self._input_file = input_file
+        self._on_task_completed = kwargs.get("on_task_completed", None)
+        self._render_options = render_options
 
     def run(self):
         """
@@ -39,21 +39,21 @@ class RenderIntervalThread(threading.Thread):
         processes it
         :return: None
         """
-        while not self.__should_exit:
+        while not self._should_exit:
             self.thread_lock.acquire()
 
             if not self.task_queue.empty():
                 task: SimpleNamespace = self.task_queue.get()
                 self.thread_lock.release()
 
-                completed = self.__render_interval(
+                completed = self._render_interval(
                     task.interval_output_file,
                     task.interval,
-                    drop_corrupted_intervals=self.__render_options.drop_corrupted_intervals,
-                    minimum_interval_duration=self.__render_options.minimum_interval_duration
+                    drop_corrupted_intervals=self._render_options.drop_corrupted_intervals,
+                    minimum_interval_duration=self._render_options.minimum_interval_duration
                 )
 
-                if completed and self.__render_options.check_intervals:
+                if completed and self._render_options.check_intervals:
                     probe_output = subprocess.run(
                         [
                             "ffprobe",
@@ -65,8 +65,8 @@ class RenderIntervalThread(threading.Thread):
                     )
                     completed = probe_output.returncode == 0
 
-                if self.__on_task_completed is not None:
-                    self.__on_task_completed(task, not completed)
+                if self._on_task_completed is not None:
+                    self._on_task_completed(task, not completed)
             else:
                 self.thread_lock.release()
 
@@ -75,9 +75,9 @@ class RenderIntervalThread(threading.Thread):
         Stops the worker after its current task is finished
         :return:
         """
-        self.__should_exit = True
+        self._should_exit = True
 
-    def __render_interval(self, interval_output_file: pathlib.Path, interval: Interval,
+    def _render_interval(self, interval_output_file: pathlib.Path, interval: Interval,
                           apply_filter=True, drop_corrupted_intervals=False, minimum_interval_duration=0.25):
         """
         Renders an interval with the given render options
@@ -88,7 +88,7 @@ class RenderIntervalThread(threading.Thread):
         :return: Whether it is corrupted or not
         """
 
-        command = self.__generate_command(interval_output_file, interval, apply_filter, minimum_interval_duration)
+        command = self._generate_command(interval_output_file, interval, apply_filter, minimum_interval_duration)
 
         console_output = subprocess.run(
             command,
@@ -100,7 +100,7 @@ class RenderIntervalThread(threading.Thread):
             if drop_corrupted_intervals:
                 return False
             if apply_filter:
-                self.__render_interval(
+                self._render_interval(
                     interval_output_file,
                     interval,
                     apply_filter=False,
@@ -115,7 +115,7 @@ class RenderIntervalThread(threading.Thread):
 
         return True
 
-    def __generate_command(self, interval_output_file: pathlib.Path, interval: Interval, apply_filter: bool, minimum_interval_duration: float):
+    def _generate_command(self, interval_output_file: pathlib.Path, interval: Interval, apply_filter: bool, minimum_interval_duration: float):
         """
         Generates the ffmpeg command to process the video
         :param interval_output_file: Where the media interval should be saved
@@ -127,7 +127,7 @@ class RenderIntervalThread(threading.Thread):
             "ffmpeg",
             "-ss", f"{interval.start}",
             "-to", f"{interval.end}",
-            "-i", f"{self.__input_file}",
+            "-i", f"{self._input_file}",
             "-vsync", "1",
             "-async", "1",
             "-safe", "0",
@@ -138,15 +138,15 @@ class RenderIntervalThread(threading.Thread):
             complex_filter = []
 
             if interval.is_silent:
-                current_speed = self.__render_options.silent_speed
-                current_volume = self.__render_options.silent_volume
+                current_speed = self._render_options.silent_speed
+                current_volume = self._render_options.silent_volume
             else:
-                current_speed = self.__render_options.audible_speed
-                current_volume = self.__render_options.audible_volume
+                current_speed = self._render_options.audible_speed
+                current_volume = self._render_options.audible_volume
 
             current_speed = RenderIntervalThread.clamp_speed(interval.duration, current_speed, minimum_interval_duration)
 
-            if not self.__render_options.audio_only:
+            if not self._render_options.audio_only:
                 complex_filter.extend([
                     f"[0:v]setpts={round(1 / current_speed, 4)}*PTS[v]",
                 ])
@@ -159,12 +159,12 @@ class RenderIntervalThread(threading.Thread):
                 ["-filter_complex", ";".join(complex_filter)]
             )
 
-            if not self.__render_options.audio_only:
+            if not self._render_options.audio_only:
                 command.extend(["-map", "[v]"])
 
             command.extend(["-map", "[a]"])
         else:
-            if self.__render_options.audio_only:
+            if self._render_options.audio_only:
                 command.append("-vn")
 
         command.append(str(interval_output_file))

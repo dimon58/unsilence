@@ -14,7 +14,7 @@ class Intervals:
         if interval_list is None:
             interval_list = []
 
-        self.__interval_list = interval_list
+        self._interval_list = interval_list
 
     def add_interval(self, interval):
         """
@@ -22,7 +22,7 @@ class Intervals:
         :param interval: interval to be added
         :return: None
         """
-        self.__interval_list.append(interval)
+        self._interval_list.append(interval)
 
     @property
     def intervals(self):
@@ -30,7 +30,7 @@ class Intervals:
         Returns the list of intervals
         :return:
         """
-        return self.__interval_list
+        return self._interval_list
 
     def optimize(self, short_interval_threshold=0.3, stretch_time=0.25):
         """
@@ -39,10 +39,10 @@ class Intervals:
         :param stretch_time: The time that should be added/removed from a audible/silent interval
         :return: None
         """
-        self.__combine_intervals(short_interval_threshold)
-        self.__enlarge_audible_intervals(stretch_time)
+        self._combine_intervals(short_interval_threshold)
+        self._enlarge_audible_intervals(stretch_time)
 
-    def __combine_intervals(self, short_interval_threshold):
+    def _combine_intervals(self, short_interval_threshold):
         """
         Combines multiple intervals in order to remove intervals smaller than a threshold
         :param short_interval_threshold: Threshold for the shortest allowed interval
@@ -51,7 +51,7 @@ class Intervals:
         intervals = []
         current_interval = Interval(is_silent=None)
 
-        for interval in self.__interval_list:
+        for interval in self._interval_list:
             if interval.duration <= short_interval_threshold or current_interval.is_silent == interval.is_silent:
                 current_interval.end = interval.end
 
@@ -68,19 +68,19 @@ class Intervals:
 
         intervals.append(current_interval)
 
-        self.__interval_list = intervals
+        self._interval_list = intervals
 
-    def __enlarge_audible_intervals(self, stretch_time):
+    def _enlarge_audible_intervals(self, stretch_time):
         """
         Enlarges/Shrinks intervals based on if they are silent or audible
         :param stretch_time: Time the intervals should be enlarged/shrunken
         :return: None
         """
-        for i, interval in enumerate(self.__interval_list):
+        for i, interval in enumerate(self._interval_list):
             interval.enlarge_audible_interval(
                 stretch_time,
                 is_start_interval=(i == 0),
-                is_end_interval=(i == len(self.__interval_list) - 1)
+                is_end_interval=(i == len(self._interval_list) - 1)
             )
 
     def remove_short_intervals_from_start(self, audible_speed=1, silent_speed=2):
@@ -91,14 +91,14 @@ class Intervals:
         :param silent_speed: The speed at which the silent intervals get played back at (float)
         :return: The new, possibly shorter, Intervals object
         """
-        for i, interval in enumerate(self.__interval_list):
+        for i, interval in enumerate(self._interval_list):
             if interval.is_silent:
                 speed = silent_speed
             else:
                 speed = audible_speed
 
             if interval.duration / speed > 0.5:
-                return Intervals(self.__interval_list[i:])
+                return Intervals(self._interval_list[i:])
 
         raise Exception("No interval has a length over 0.5 seconds after speed changes! This is required.")
 
@@ -107,7 +107,7 @@ class Intervals:
         Creates a deep copy
         :return: Deep copy of Intervals
         """
-        new_interval_list = [interval.copy() for interval in self.__interval_list]
+        new_interval_list = [interval.copy() for interval in self._interval_list]
 
         return Intervals(new_interval_list)
 
@@ -116,7 +116,7 @@ class Intervals:
         Serializes this collection
         :return: Serialized list
         """
-        return [interval.serialize() for interval in self.__interval_list]
+        return [interval.serialize() for interval in self._interval_list]
 
     @staticmethod
     def deserialize(serialized_obj):
@@ -133,4 +133,4 @@ class Intervals:
         String representation
         :return: String representation
         """
-        return str(self.__interval_list)
+        return str(self._interval_list)
