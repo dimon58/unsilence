@@ -46,6 +46,11 @@ class MediaRenderer:
                 (called like: func(current, total))
             on_concat_progress_update: Function that should be called on concat progress update
                 (called like: func(current, total))
+
+            fade filter for start and end https://ffmpeg.org/ffmpeg-filters.html#afade-1
+            interval_in_fade_duration:
+            interval_out_fade_duration:
+            fade_curve:
         """
         input_file = Path(input_file).absolute()
         output_file = Path(output_file).absolute()
@@ -61,7 +66,10 @@ class MediaRenderer:
             silent_volume=kwargs.get("silent_volume", 0.5),
             drop_corrupted_intervals=kwargs.get("drop_corrupted_intervals", False),
             check_intervals=kwargs.get("check_intervals", False),
-            minimum_interval_duration=kwargs.get("minimum_interval_duration", 0.25)
+            minimum_interval_duration=kwargs.get("minimum_interval_duration", 0.25),
+            interval_in_fade_duration=kwargs.get("interval_in_fade_duration", 0.0),
+            interval_out_fade_duration=kwargs.get("interval_out_fade_duration", 0.0),
+            fade_curve=kwargs.get("fade_curve", "tri"),
         )
 
         intervals = intervals.remove_short_intervals_from_start(

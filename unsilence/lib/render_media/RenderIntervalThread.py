@@ -115,7 +115,38 @@ class RenderIntervalThread(threading.Thread):
 
         return True
 
-    def _generate_command(self, interval_output_file: pathlib.Path, interval: Interval, apply_filter: bool, minimum_interval_duration: float):
+    @staticmethod
+    def _get_fade_filter(
+            total_duration: float,
+            interval_in_fade_duration: float,
+            interval_out_fade_duration: float,
+            fade_curve: str,
+    ) -> tuple[str, ...]:
+
+        if interval_out_fade_duration == 0.0 and interval_out_fade_duration == 0.0:
+            return ()
+
+        fade_in = f"afade=t=in:st=0:d={interval_in_fade_duration:.4f}:curve={fade_curve}"
+        fade_out = (
+            f"afade=t=out"
+            f":st={total_duration - interval_out_fade_duration:.4f}"
+            f":d={interval_out_fade_duration:.4f}"
+            f":curve={fade_curve}"
+        )
+        if interval_in_fade_duration == 0.0:
+            return "-af", fade_out
+
+        if interval_out_fade_duration == 0.0:
+            return "-af", fade_in
+
+        return "-af", f"{fade_in},{fade_out}"
+
+    def _generate_command(
+            self,
+            interval_output_file: pathlib.Path,
+            interval: Interval, apply_filter: bool,
+            minimum_interval_duration: float,
+    ):
         """
         Generates the ffmpeg command to process the video
         :param interval_output_file: Where the media interval should be saved
@@ -123,11 +154,18 @@ class RenderIntervalThread(threading.Thread):
         :param apply_filter: Whether a filter should be applied or not
         :return: ffmpeg console command
         """
+        fade = self._get_fade_filter(
+            total_duration=interval.duration,
+            interval_in_fade_duration=self._render_options.interval_in_fade_duration,
+            interval_out_fade_duration=self._render_options.interval_out_fade_duration,
+            fade_curve=self._render_options.fade_curve,
+        )
         command = [
             "ffmpeg",
             "-ss", f"{interval.start}",
             "-to", f"{interval.end}",
             "-i", f"{self._input_file}",
+            *fade,
             "-vsync", "1",
             "-async", "1",
             "-safe", "0",
