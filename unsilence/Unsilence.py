@@ -70,6 +70,9 @@ class Unsilence:
         """
         return self._intervals
 
+    def get_input_file(self):
+        return self._input_file
+
     def estimate_time(self, audible_speed: float = 1, silent_speed: float = 6):
         """
         Estimates the time (savings) when the current options are applied to the intervals
